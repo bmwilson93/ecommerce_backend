@@ -1,6 +1,37 @@
 // Cart Router
 // imported in the index.js file and matches all '/api/cart' routes
 
+// Example cart
+/*
+{
+  "size": 3,     => simple integer of the cart size
+  "items": [     => an array of objects, each object is a product and a qty
+    {
+      "product": {  => the full product object fetched from the DB
+        "id": 3,
+        "name": "T-Shirt",
+        "description": "A black shirt",
+        "product_img": "/images/products/shirt.png",
+        "price": "$16.00",
+        "sizes": null
+      }, 
+      "qty": 1
+    },
+    {
+      "product": {  => the full product object fetched from the DB
+        "id": 7,
+        "name": "Poster",
+        "description": "A poster featuring the artwork of Spilling Out",
+        "product_img": "/images/products/poster.png",
+        "price": "$12.00",
+        "sizes": null
+      }, 
+      "qty": 2
+    },
+  ]
+}
+*/
+
 const express = require("express"),
       router = express.Router();
 
@@ -8,7 +39,7 @@ const express = require("express"),
 // else return -1
 const doesExist = (items, id) => {
   for (let i = 0; i < items.length; i++) {
-    if (items[i].id == id) {
+    if (items[i].product.id == id) {
       return i
     }
   }
@@ -40,16 +71,19 @@ router.use((req, res, next) => {
 })
 
 
+// should add a product to the cart using the product supplied in the body
+.post('/add', (req, res) => {
+  // let id = Number(req.params.id);
 
-.post('/add/:id', (req, res) => {
-  let id = Number(req.params.id);
+  let product = req.body;
+  let itemExists = doesExist(req.session.cart.items, product.id);
 
-  let itemExists = doesExist(req.session.cart.items, id);
   if (itemExists >= 0) {
     req.session.cart.items[itemExists].qty += req.qty;
   } else { // item doesn't exist, add new item by the qty
-    req.session.cart.items.push({"id": id, "qty": req.qty});
+    req.session.cart.items.push({"product": product, "qty": req.qty});
   }
+
   req.session.cart.size += req.qty;
   res.json(req.session.cart);
 })
@@ -63,7 +97,7 @@ router.use((req, res, next) => {
   if (itemExists >= 0) {
     req.session.cart.size -= req.session.cart.items[itemExists].qty
     req.session.cart.items = req.session.cart.items.filter(item => {
-      return item.id !== id
+      return item.product.id !== id
     })
     res.json(req.session.cart);
   } else {
@@ -95,7 +129,7 @@ router.use((req, res, next) => {
     if (req.session.cart.items[itemExists].qty <= req.qty) { // check if removing qty will remove all qty of id item
       req.session.cart.size -= req.session.cart.items[itemExists].qty;
       req.session.cart.items = req.session.cart.items.filter(item => {
-        return item.id !== id
+        return item.product.id !== id
       });
     } else {
       req.session.cart.size -= req.qty;
@@ -108,7 +142,7 @@ router.use((req, res, next) => {
 })
 
 
-.post('/clear', (req, res) => {
+.delete('/clear', (req, res) => {
   req.session.cart = {
     "size": 0,
     "items": []
