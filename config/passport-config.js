@@ -22,21 +22,28 @@ passport.serializeUser(async (user, done) => {
   try {
     console.log("serializeing user...")
     // query the database for the user, to get the id
-    const result = await db.query(`SELECT id FROM users WHERE email='${user}';`);
+    const result = await db.query(`SELECT * FROM users WHERE email='${user}';`);
     let id = result.rows[0].id;
-    done(null, id);
+
+    // TODO remove the password from the object
+    let userObject = result.rows[0]
+    console.log(userObject)
+    
+    done(null, userObject);
   } catch (error) {
     return done(error);
   }
-  // return done(null, {id: 3});
 });
 
-passport.deserializeUser(async (id, done) => {
+
+passport.deserializeUser(async (userObj, done) => {
   try {
     // query the database using id to find the user (email)
-    const result = await db.query(`SELECT * FROM users WHERE id='${id}';`);
+    const result = await db.query(`SELECT id FROM users WHERE id='${userObj.id}';`);
     // TODO change this line to exclude the password field //
     let user = result.rows[0];
+    console.log('deserialize')
+    console.log(user);
     done(null, user);
   } catch (error) {
     return done(error);
@@ -51,9 +58,6 @@ passport.use(new localStrategy(async (username, password, done) => {
       const user = await findUser(username);
       // const emailExists = result.rows.length
       if (user) { // user found
-        // check for password
-        console.log("Found user:")
-        console.log(user)
         if (bcrypt.compareSync(password, user.password)) { // password correct
           return done(null, user.email);
         } else { //  password wrong
@@ -72,68 +76,54 @@ passport.use(new localStrategy(async (username, password, done) => {
 
 
 // ROUTES
-router.post('/login',
+router.post('/api/login',
   passport.authenticate('local', { failureRedirect: '/login'}),
   (req, res) => {
-    res.send("logged in successfully");
+    console.log("logged in successfully")
+    // console.log(req)
+    // TODO instead of sending a message, send the sesion.passport.user object
+    res.json(req.session.passport.user)
   }
 )
 
 
-router.post('/register', async (req, res) => {
+router.post('/api/register', async (req, res) => {
   console.log("");
-  const { username, password, first_name, last_name, profile_img } = req.body;
+  const { username, password, first_name, last_name } = req.body;
   try {
     
     // check the database and see if the username aka email, already exists
-    // const result = await db.query(`SELECT * FROM users WHERE email='${username}'`);
-    // console.log("result of SELECT query: ");
-    // console.log(result);
-    // const emailExists = result.rows.length
-    // console.log("EmailExists: " + emailExists);
     const user = await findUser(username);
     if (user) {
+      console.log('User already exists')
       res.status(400).send("email already exists!")
     } else { // no email, add new user
       console.log("adding new user");
-      // create a new user object, add the new user info from the body
-      // bcrypt.hash(password, saltRounds, async (err, hash) => {
-      //   const newUser = {
-      //     'email': username,
-      //     'password': hash,
-      //     'first_name': first_name,
-      //     'last_name': last_name,
-      //     'profile_img': 'http://example.com'
-      //   }
-
-      //   await addUser(newUser);
-      // })
 
       const salt = bcrypt.genSaltSync(saltRounds);
       const hash = bcrypt.hashSync(password, salt);
+
+      // console.log(username);
+      // console.log(hash);
+      // console.log(first_name);
+      // console.log(last_name);
 
       const newUser = {
         'email': username,
         'password': hash,
         'first_name': first_name,
         'last_name': last_name,
-        'profile_img': 'example.com'
       }
 
       await addUser(newUser);
       
-      // then add that user to the database and login with passport
-      //  TODO - add bcrypt to has password before inserting into db
-      // const result = await db.query(`INSERT INTO users (email, password) VALUES ('${username}', '${password}');`);
-      // console.log(newUser);
-      
-      // res.send("added user");
+      // call the passport.js login fuction with the new user
       req.login(newUser.email, (err) => {
         console.log("new user added");
-        res.send('new user added');
+        // TODO remove the password from the sent object
+        res.json(newUser);
       })
     }
-    
   } catch (error) {
     console.log(error);
     res.status(500).send("error");
@@ -142,18 +132,22 @@ router.post('/register', async (req, res) => {
 
 
 // to log out, simply use the req.logout() function middleware
-router.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
+router.post('/api/logout', (req, res) => {
+  console.log('logging out')
+  req.logout((err) => {
+    if (err) {console.log(err)}
+    res.redirect('/');
+  });
 })
 
 
-router.get('/isloggedin', 
+router.get('/api/isloggedin', 
   (req, res) => {
   if (req.user) {
     console.log(req.user);
     console.log('logged in');
-    res.send('logged in');
+    // TODO send the session.passport.user object
+    res.json(req.session.passport.user);
   } else {
     res.send('not logged in');
   }
