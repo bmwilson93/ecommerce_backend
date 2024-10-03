@@ -136,20 +136,21 @@ router.post('/api/logout', (req, res) => {
   console.log('logging out')
   req.logout((err) => {
     if (err) {console.log(err)}
-    res.redirect('/');
+    res.status(200).send();
   });
 })
 
 
 router.get('/api/isloggedin', 
   (req, res) => {
+    console.log("running isloggedin")
   if (req.user) {
     console.log(req.user);
     console.log('logged in');
     // TODO send the session.passport.user object
     res.json(req.session.passport.user);
   } else {
-    res.send('not logged in');
+    res.status(401).send(false);
   }
 })
 
