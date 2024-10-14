@@ -22,7 +22,11 @@ router.use(session({
     tableName: process.env.TABLE_NAME
   }),
   secret: process.env.SECRET,
-  cookie: { maxAge: 1000 * 60 * 60 * 24, sameSite: "none" },
+  cookie: { 
+    maxAge: 1000 * 60 * 60 * 24, 
+    sameSite: "lax",
+    secure: false
+  },
   resave: false,
   saveUninitialized: false,
 }));
