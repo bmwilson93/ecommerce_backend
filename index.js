@@ -8,12 +8,14 @@ app.use(cors({
 }));
 require('dotenv').config();
 
+app.set('trust proxy', 1);
+
 // Import Routers
 const productsRouter = require('./routes/products.js');
 const cartRouter = require('./routes/cart.js');
 const passportRouter = require('./config/passport-config.js');
 const sessionRouter = require('./config/session-config.js');
-// const ordersRouter = require('./routes/orders.js');
+const ordersRouter = require('./routes/orders.js');
 // const userRouter = require('./routes/user.js');
 
 
@@ -35,6 +37,7 @@ app.use(sessionRouter);
 app.use(passportRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
+app.use('/api/orders', ordersRouter);
 
 
 app.listen(PORT, () => {
