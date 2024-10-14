@@ -42,8 +42,8 @@ passport.deserializeUser(async (userObj, done) => {
     const result = await db.query(`SELECT id FROM users WHERE id='${userObj.id}';`);
     // TODO change this line to exclude the password field //
     let user = result.rows[0];
-    console.log('deserialize')
-    console.log(user);
+    // console.log('deserialize')
+    // console.log(user);
     done(null, user);
   } catch (error) {
     return done(error);
@@ -77,9 +77,13 @@ passport.use(new localStrategy(async (username, password, done) => {
 
 // ROUTES
 router.post('/api/login',
-  passport.authenticate('local', { failureRedirect: '/login'}),
+  (req, res, next) => {
+    // console.log(req.session.cart);
+    next();
+  },
+  passport.authenticate('local', { failureRedirect: '/login', keepSessionInfo: true}),
   (req, res) => {
-    console.log("logged in successfully")
+    console.log(req.session.cart);
     // console.log(req)
     // TODO instead of sending a message, send the sesion.passport.user object
     res.json(req.session.passport.user)
@@ -133,7 +137,7 @@ router.post('/api/register', async (req, res) => {
 
 // to log out, simply use the req.logout() function middleware
 router.post('/api/logout', (req, res) => {
-  console.log('logging out')
+  // console.log('logging out')
   req.logout((err) => {
     if (err) {console.log(err)}
     res.status(200).send();
