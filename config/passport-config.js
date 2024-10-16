@@ -22,12 +22,11 @@ passport.serializeUser(async (user, done) => {
   try {
     console.log("serializeing user...")
     // query the database for the user, to get the id
-    const result = await db.query(`SELECT * FROM users WHERE email='${user}';`);
-    let id = result.rows[0].id;
+    const result = await db.query(`SELECT id, email, first_name, last_name FROM users WHERE email='${user}';`);
+    // let id = result.rows[0].id;
 
-    // TODO remove the password from the object
     let userObject = result.rows[0]
-    console.log(userObject)
+    console.log(userObject);
     
     done(null, userObject);
   } catch (error) {
@@ -42,6 +41,7 @@ passport.deserializeUser(async (userObj, done) => {
     const result = await db.query(`SELECT id FROM users WHERE id='${userObj.id}';`);
     // TODO change this line to exclude the password field //
     let user = result.rows[0];
+    // delete user[password];
     // console.log('deserialize')
     // console.log(user);
     done(null, user);
