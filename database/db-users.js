@@ -17,23 +17,27 @@ const addUser = async (user) => {
   console.log(`running addUser: `);
   try {
     const result = await db.query(
-      'INSERT INTO users (email, password, first_name, last_name, profile_img) VALUES ($1, $2, $3, $4, $5);',
-      [user.email, user.password, user.first_name, user.last_name, user.profile_img]
+      'INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4);',
+      [user.email, user.password, user.first_name, user.last_name]
     );
     return result;
   } catch (error) {
+    console.log(error);
     return(error);
   }
 }
 
-const updateUser = async (newInfo, user) => {
+const updateUser = async (newInfo, id) => {
   console.log('updating the user');
   try {
     const result = await db.query(
-      'UPDATE users SET email = $1, first_name = $2, last_name = $3 WHERE email = $4;',
-      [newInfo.email, newInfo.first_name, newInfo.last_name, user.email]
+      'UPDATE users SET email = $1, first_name = $2, last_name = $3 WHERE id = $4 RETURNING id, email, first_name, last_name;',
+      [newInfo.email, newInfo.first_name, newInfo.last_name, id]
     );
-    return result;
+
+    console.log(result.rows[0]);
+
+    return result.rows[0];
   } catch (error) {
     return(error);
   }
@@ -84,4 +88,4 @@ const deleteUser = async (user) => {
   }
 }
 
-module.exports = { findUser, addUser }
+module.exports = { findUser, addUser, updateUser }
