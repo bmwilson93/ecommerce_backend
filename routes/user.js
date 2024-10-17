@@ -10,7 +10,7 @@ router.use('/', (req, res, next) => {
   if (req.user) {
     next();
   } else {
-    res.send("Oh no! Not logged in!")
+    res.status(401).send(false);
   }
 });
 
@@ -19,10 +19,20 @@ router.get('/', (req, res) => {
   res.json(userInfo);
 })
 
-router.put('/update-user', async (req, res) => {
-  const { newInfo } = req.body;
+router.put('/update', async (req, res) => {
+  const newInfo = req.body;
   const updatedUser = await updateUser(newInfo, req.user);
+
+  // check for error
+  if (updatedUser.error) {
+    res.status(500).send(updatedUser.error)
+  }
+
+  // use updatedUser to update the session info
+  req.session.passport.user = updatedUser;
+
   res.json(updatedUser);
+  // res.status(200).send('test');
 });
 
 router.put('/update-password', async (req, res) => {
