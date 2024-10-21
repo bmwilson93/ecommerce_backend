@@ -51,7 +51,6 @@ const getOrders = async (user) => {
     'SELECT * FROM orders WHERE user_id = $1',
     [user.id]
   );
-  console.log(result.rows);
   return result.rows;
 }
 
