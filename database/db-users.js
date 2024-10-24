@@ -5,11 +5,8 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const findUser = async (user) => {
-  // console.log(`findUser is running: ${user}`)
   const result = await db.query(`SELECT * FROM users WHERE email='${user}'`);
-  // console.log(result);
   const foundUser = result.rows[0]
-  // console.log(emailExists);
   return foundUser;
 }
 
@@ -28,7 +25,7 @@ const addUser = async (user) => {
 }
 
 const updateUser = async (newInfo, id) => {
-  console.log('updating the user');
+  console.log('running updateUser');
   try {
     const result = await db.query(
       'UPDATE users SET email = $1, first_name = $2, last_name = $3 WHERE id = $4 RETURNING id, email, first_name, last_name;',
@@ -39,6 +36,7 @@ const updateUser = async (newInfo, id) => {
 
     return result.rows[0];
   } catch (error) {
+    console.log(error)
     return(error);
   }
 }
