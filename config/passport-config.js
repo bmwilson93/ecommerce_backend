@@ -20,10 +20,8 @@ router.use(passport.authenticate('session'))
 // serialize and deserialize passport
 passport.serializeUser(async (user, done) => {
   try {
-    console.log("serializeing user...")
     // query the database for the user, to get the id
     const result = await db.query(`SELECT id, email, first_name, last_name FROM users WHERE email='${user}';`);
-    // let id = result.rows[0].id;
 
     let userObject = result.rows[0]
     console.log(userObject);
@@ -34,27 +32,23 @@ passport.serializeUser(async (user, done) => {
   }
 });
 
-
+// saves as req.user
 passport.deserializeUser(async (userObj, done) => {
   try {
     // query the database using id to find the user (email)
-    const result = await db.query(`SELECT id FROM users WHERE id='${userObj.id}';`);
-    // TODO change this line to exclude the password field //
-    let user = result.rows[0];
-    // delete user[password];
-    // console.log('deserialize')
-    // console.log(user);
-    done(null, user);
+    if (userObj) {
+      const result = await db.query(`SELECT id FROM users WHERE id='${userObj.id}';`);
+      let user = result.rows[0];
+      done(null, user);
+    }
   } catch (error) {
     return done(error);
   }
-  // return done(null, 'brian@steve.com');
 })
 
 passport.use(new localStrategy(async (username, password, done) => {
     try {
       // if user not found, return done(null, false);
-      // const result = await db.query(`SELECT * FROM users WHERE email='${username}'`);
       const user = await findUser(username);
       // const emailExists = result.rows.length
       if (user) { // user found
@@ -78,14 +72,11 @@ passport.use(new localStrategy(async (username, password, done) => {
 // ROUTES
 router.post('/api/login',
   (req, res, next) => {
-    // console.log(req.session.cart);
     next();
   },
   passport.authenticate('local', { failureRedirect: '/login', keepSessionInfo: true}),
   (req, res) => {
     console.log(req.session.cart);
-    // console.log(req)
-    // TODO instead of sending a message, send the sesion.passport.user object
     res.json(req.session.passport.user)
   }
 )
@@ -107,11 +98,6 @@ router.post('/api/register', async (req, res) => {
       const salt = bcrypt.genSaltSync(saltRounds);
       const hash = bcrypt.hashSync(password, salt);
 
-      // console.log(username);
-      // console.log(hash);
-      // console.log(first_name);
-      // console.log(last_name);
-
       const newUser = {
         'email': username,
         'password': hash,
@@ -124,7 +110,7 @@ router.post('/api/register', async (req, res) => {
       // call the passport.js login fuction with the new user
       req.login(newUser.email, (err) => {
         console.log("new user added");
-        // TODO remove the password from the sent object
+        delete newUser.password;
         res.json(newUser);
       })
     }
@@ -137,7 +123,6 @@ router.post('/api/register', async (req, res) => {
 
 // to log out, simply use the req.logout() function middleware
 router.post('/api/logout', (req, res) => {
-  // console.log('logging out')
   req.logout((err) => {
     if (err) {console.log(err)}
     res.status(200).send();
@@ -149,9 +134,6 @@ router.get('/api/isloggedin',
   (req, res) => {
     console.log("running isloggedin")
   if (req.user) {
-    console.log(req.user);
-    console.log('logged in');
-    // TODO send the session.passport.user object
     res.json(req.session.passport.user);
   } else {
     res.status(401).send(false);
