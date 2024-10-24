@@ -16,7 +16,7 @@ const cartRouter = require('./routes/cart.js');
 const passportRouter = require('./config/passport-config.js');
 const sessionRouter = require('./config/session-config.js');
 const ordersRouter = require('./routes/orders.js');
-// const userRouter = require('./routes/user.js');
+const userRouter = require('./routes/user.js');
 
 
 // database connections
@@ -38,6 +38,7 @@ app.use(passportRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/user', userRouter);
 
 
 app.listen(PORT, () => {
