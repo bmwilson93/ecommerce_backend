@@ -14,17 +14,21 @@ router.use('/', (req, res, next) => {
   }
 });
 
+
 router.get('/', (req, res) => {
   const userInfo = req.user;
   res.json(userInfo);
 })
 
+
 router.put('/update', async (req, res) => {
   const newInfo = req.body;
-  const updatedUser = await updateUser(newInfo, req.user);
+  const updatedUser = await updateUser(newInfo, req.user.id);
 
   // check for error
   if (updatedUser.error) {
+    console.log("There was an error:")
+    console.log(updateUser.error);
     res.status(500).send(updatedUser.error)
   }
 
@@ -32,12 +36,13 @@ router.put('/update', async (req, res) => {
   req.session.passport.user = updatedUser;
 
   res.json(updatedUser);
-  // res.status(200).send('test');
 });
+
 
 router.put('/update-password', async (req, res) => {
   const result = await updatePassword(currentPassword, newPassword, req.user);
 });
+
 
 router.delete('/', async (req, res) => {
   await deleteUser(req.user);
