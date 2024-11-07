@@ -33,12 +33,12 @@ app.use(express.json());
 
 
 // ROUTERS ---
-// app.use(sessionRouter);
-// app.use(passportRouter);
-// app.use('/api/products', productsRouter);
-// app.use('/api/cart', cartRouter);
-// app.use('/api/orders', ordersRouter);
-// app.use('/api/user', userRouter);
+app.use(sessionRouter);
+app.use(passportRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/user', userRouter);
 
 
 app.listen(PORT, () => {
