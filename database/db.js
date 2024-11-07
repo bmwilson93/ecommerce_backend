@@ -8,7 +8,7 @@ const pool = new Pool({
   // user: process.env.DB_USER,
   // database: process.env.DB_DATABASE,
   // password: process.env.DB_PASSWORD,
-  // dialect: 'postgres'
+  dialect: 'postgres',
   connectionString: process.env.DB_CONNECTION_STRING
 });
 
