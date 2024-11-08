@@ -19,13 +19,6 @@ const ordersRouter = require('./routes/orders.js');
 const userRouter = require('./routes/user.js');
 
 
-// database connections
-const db = require('./db.js');
-
-
-// Bcrypt
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 const PORT = process.env.PORT || 4001;
 
