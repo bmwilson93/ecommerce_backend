@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors  = require('cors');
 app.use(cors({
-  origin: '*',
+  // origin: '*',
   methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'HEAD'],
   credentials: true
 }));
