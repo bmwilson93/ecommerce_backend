@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors  = require('cors');
 app.use(cors({
-  // origin: '*',
+  origin: 'https://ecommerce-frontend-rqru.onrender.com',
   methods: ['POST', 'PUT', 'GET', 'DELETE', 'OPTIONS', 'HEAD'],
   credentials: true
 }));
