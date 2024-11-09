@@ -14,16 +14,18 @@ CREATE TABLE products (
   name varchar(128) NOT NULL,
   description varchar(288) NOT NULL,
   product_img text,
-  price money NOT NULL,
-  sizes json
-)
+  price money NOT NULL
+);
 
 CREATE TABLE orders (
   id int PRIMARY KEY,
   user_id integer NOT NULL,
   order_total money NOT NULL,
   created_at timestamp NOT NULL,
-)
+  order_number varchar(16) NOT NULL,
+  items json NOT NULL,
+  payment_id varchar(50)
+);
 
 -- Table to store the session data from express-session, connect-pg-simple
 CREATE TABLE "session" (
