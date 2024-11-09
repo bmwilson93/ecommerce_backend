@@ -24,8 +24,8 @@ router.use(session({
   secret: process.env.SECRET,
   cookie: { 
     maxAge: 1000 * 60 * 60 * 24, 
-    sameSite: "lax",
-    secure: false
+    sameSite: "none",
+    secure: true
   },
   resave: false,
   saveUninitialized: false,
